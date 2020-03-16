@@ -5,15 +5,17 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
+import java.io.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 
-data class Note(
+data class Note (
     val title: String,
     val content: String,
     val priority: Priority,
-    val dueDate: LocalDate
+    val dueDate: LocalDate,
+    val completed: Boolean
 )
 
 fun noteFromCsvString(csv: String): Note {
@@ -22,13 +24,15 @@ fun noteFromCsvString(csv: String): Note {
         title = elements[0],
         content = elements[1],
         priority = Priority.valueOf(elements[2]),
-        dueDate = LocalDate.parse(elements[3], DateTimeFormatter.ofPattern(DATE_FORMAT))
+        dueDate = LocalDate.parse(elements[3], DateTimeFormatter.ofPattern(DATE_FORMAT)),
+        completed = elements[4].toBoolean()
     )
 }
 
 fun noteToCsvString(note: Note): String {
-    return "${note.title};${note.content};${note.priority}" +
-            note.dueDate.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
+    return "${note.title};${note.content};${note.priority};" +
+           "${note.dueDate.format(DateTimeFormatter.ofPattern(DATE_FORMAT))};" +
+           note.completed
 }
 
 fun loadNotesFromFile(fileName: String, ctxt: Context): List<Note> {

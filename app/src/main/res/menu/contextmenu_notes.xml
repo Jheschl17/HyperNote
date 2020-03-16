@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Postpone" />
-    <item android:title="Mark as finished" />
-    <item android:title="Details" />
+    <item
+        android:id="@+id/menu_postpone"
+        android:title="Postpone" />
+    <item
+        android:id="@+id/menu_mark_as_finished"
+        android:title="Mark as done" />
 </menu>
