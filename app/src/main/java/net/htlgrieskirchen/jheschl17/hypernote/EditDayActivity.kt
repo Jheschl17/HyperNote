@@ -11,6 +11,11 @@ import java.time.format.DateTimeFormatter
 import java.util.function.Predicate
 import android.content.DialogInterface
 import android.content.Intent
+import android.view.ContextMenu
+import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
+import androidx.preference.PreferenceManager
 
 class EditDayActivity : AppCompatActivity() {
 
@@ -19,6 +24,7 @@ class EditDayActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_edit_day)
 
         val date = intent.getSerializableExtra("date") as LocalDate
@@ -28,13 +34,16 @@ class EditDayActivity : AppCompatActivity() {
         adapter = NoteAdapter(
             this,
             notes,
-            Predicate { it.dueDate == date }
+            Predicate { it.dueDate == date },
+            PreferenceManager.getDefaultSharedPreferences(this)
         )
         lst_reportnotes.adapter = adapter
 
+        registerForContextMenu(lst_reportnotes)
+
         lst_reportnotes.setOnItemClickListener { _, _, position, _ ->
             val intent = Intent(this, NoteDetailsActivity::class.java).apply {
-                putExtra("note", noteToCsvString(adapter.getItem(position)))
+                putExtra("note", noteToSerializationString(adapter.getItem(position)))
             }
             startActivity(intent)
         }
@@ -65,6 +74,28 @@ class EditDayActivity : AppCompatActivity() {
                 })
                 .setNegativeButton("Cancel", null)
                 .show()
+        }
+    }
+
+    override fun onCreateContextMenu(
+        menu: ContextMenu,
+        v: View,
+        menuInfo: ContextMenu.ContextMenuInfo?
+    ) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        menuInflater.inflate(R.menu.contextmenu_editday, menu)
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        val listviewIndex = (item.menuInfo as AdapterView.AdapterContextMenuInfo?)?.position ?: -1
+        return when (item.itemId) {
+            R.id.menu_delete -> {
+                notes.remove(adapter.getItem(listviewIndex))
+                saveNotesToFile(notes, CSV_FILE_NAME, this)
+                adapter.notifyDataSetChanged()
+                true
+            }
+            else -> super.onContextItemSelected(item)
         }
     }
 

@@ -5,7 +5,6 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
-import java.io.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
@@ -18,7 +17,7 @@ data class Note (
     val completed: Boolean
 )
 
-fun noteFromCsvString(csv: String): Note {
+fun noteFromSerializationString(csv: String): Note {
     val elements = csv.split(";")
     return Note(
         title = elements[0],
@@ -29,7 +28,7 @@ fun noteFromCsvString(csv: String): Note {
     )
 }
 
-fun noteToCsvString(note: Note): String {
+fun noteToSerializationString(note: Note): String {
     return "${note.title};${note.content};${note.priority};" +
            "${note.dueDate.format(DateTimeFormatter.ofPattern(DATE_FORMAT))};" +
            note.completed
@@ -39,7 +38,7 @@ fun loadNotesFromFile(fileName: String, ctxt: Context): List<Note> {
     val file = ctxt.getFileStreamPath(fileName)
     return if (file.exists())
         BufferedReader(InputStreamReader(ctxt.openFileInput(fileName))).lines()
-            .map { noteFromCsvString(it) }
+            .map { noteFromSerializationString(it) }
             .collect(Collectors.toList())
     else
         mutableListOf()
@@ -47,7 +46,7 @@ fun loadNotesFromFile(fileName: String, ctxt: Context): List<Note> {
 
 fun saveNotesToFile(notes: List<Note>, fileName: String, context: Context) {
     val br = PrintWriter(OutputStreamWriter(context.openFileOutput(fileName, Context.MODE_PRIVATE)))
-    notes.forEach { br.println(noteToCsvString(it)) }
+    notes.forEach { br.println(noteToSerializationString(it)) }
     br.flush()
     br.close()
 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.fragment_report.view.*
 import kotlinx.android.synthetic.main.fragment_report.view.lst_reportnotes
 import net.htlgrieskirchen.jheschl17.hypernote.NoteDetailsActivity
@@ -36,7 +37,8 @@ class ReportFragment : Fragment() {
         adapter = NoteAdapter(
             requireContext(),
             notes,
-            Predicate { it.dueDate == LocalDate.now() }
+            Predicate { it.dueDate == LocalDate.now() },
+            PreferenceManager.getDefaultSharedPreferences(requireContext())
         )
         view1.lst_reportnotes.adapter = this.adapter
 
@@ -44,7 +46,7 @@ class ReportFragment : Fragment() {
 
         view1.lst_reportnotes.setOnItemClickListener { _, _, position, _ ->
             val intent = Intent(requireContext(), NoteDetailsActivity::class.java).apply {
-                putExtra("note", noteToCsvString(adapter.getItem(position)))
+                putExtra("note", noteToSerializationString(adapter.getItem(position)))
             }
             startActivity(intent)
         }

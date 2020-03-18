@@ -1,11 +1,13 @@
 package net.htlgrieskirchen.jheschl17.hypernote.util
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.listitem_note.view.*
 import net.htlgrieskirchen.jheschl17.hypernote.R
 import java.util.function.Predicate
@@ -13,12 +15,18 @@ import java.util.function.Predicate
 class NoteAdapter(
     private val context: Context,
     private val notes: List<Note>,
-    private val filter: Predicate<Note>
+    private val filter: Predicate<Note>,
+    private val prefs: SharedPreferences
 ) : BaseAdapter() {
 
     override fun getItem(position: Int): Note {
         return notes
             .filter { filter.test(it) }
+            .filter {
+                if (!prefs.getBoolean("preference_checkbox_displaydone", true) && it.completed)
+                    return@filter false
+                return@filter true
+            }
             .sortedWith(compareBy({it.completed}, { it.priority.intPriority }, { it.title }))[position]
     }
 
@@ -27,7 +35,14 @@ class NoteAdapter(
     }
 
     override fun getCount(): Int {
-        return notes.filter { filter.test(it) }.size
+        return notes
+            .filter { filter.test(it) }
+            .filter {
+                if (!prefs.getBoolean("preference_checkbox_displaydone", true) && it.completed)
+                    return@filter false
+                return@filter true
+            }
+            .size
     }
 
     override fun getView(
@@ -41,7 +56,7 @@ class NoteAdapter(
         if (note.content.length < 30)
             listItem.text_contentpreview.text = note.content
         else
-            listItem.text_contentpreview.text = "${note.content.substring(0, 30)}..."
+            listItem.text_contentpreview.text = "${note.content.substring(0, 28)}..."
         if (note.priority == Priority.HIGH && !note.completed)
             listItem.text_notetitle.setTextColor(Color.parseColor("#DD1111"))
         if (note.completed) {
