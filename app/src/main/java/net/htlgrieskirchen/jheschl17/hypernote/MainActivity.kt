@@ -6,7 +6,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.preference.PreferenceManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -24,5 +23,7 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         navView.selectedItemId = R.id.navigation_report
+
+
     }
 }

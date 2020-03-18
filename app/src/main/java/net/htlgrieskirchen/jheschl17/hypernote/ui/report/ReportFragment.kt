@@ -33,7 +33,7 @@ class ReportFragment : Fragment() {
             DateTimeFormatter.ofPattern(DATE_FORMAT)
         )
 
-        notes = loadNotesFromFile(CSV_FILE_NAME, requireContext()) as MutableList<Note>
+        notes = loadNotesFromFile(NOTE_FILE_PATH, requireActivity()) as MutableList<Note>
         adapter = NoteAdapter(
             requireContext(),
             notes,
@@ -74,7 +74,7 @@ class ReportFragment : Fragment() {
                 notes[viewIndex] = notes[viewIndex].copy(completed = true)
             }
         }
-        saveNotesToFile(notes, CSV_FILE_NAME, requireContext())
+        saveNotesToFile(notes, NOTE_FILE_PATH, requireActivity())
         adapter.notifyDataSetChanged()
         return true
     }

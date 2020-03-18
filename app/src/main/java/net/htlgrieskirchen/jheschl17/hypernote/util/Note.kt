@@ -1,13 +1,16 @@
 package net.htlgrieskirchen.jheschl17.hypernote.util
 
-import android.content.Context
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
-import java.io.PrintWriter
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.PermissionChecker.checkSelfPermission
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
+import java.io.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.stream.Collectors
+import androidx.core.content.PermissionChecker
 
 data class Note (
     val title: String,
@@ -34,19 +37,39 @@ fun noteToSerializationString(note: Note): String {
            note.completed
 }
 
-fun loadNotesFromFile(fileName: String, ctxt: Context): List<Note> {
-    val file = ctxt.getFileStreamPath(fileName)
+fun loadNotesFromFile(fileName: String, activity: Activity): List<Note> {
+    if (checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        != PermissionChecker.PERMISSION_GRANTED) {
+        requestPermissions(
+            activity,
+            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            1337
+        )
+    }
+
+    val file = File(NOTE_FILE_PATH)
     return if (file.exists())
-        BufferedReader(InputStreamReader(ctxt.openFileInput(fileName))).lines()
-            .map { noteFromSerializationString(it) }
-            .collect(Collectors.toList())
+        registerLocalDate(GsonBuilder()).create().fromJson(
+            BufferedReader(FileReader(file)),
+            object:TypeToken<ArrayList<Note>>() {}.type
+        )
     else
         mutableListOf()
 }
 
-fun saveNotesToFile(notes: List<Note>, fileName: String, context: Context) {
-    val br = PrintWriter(OutputStreamWriter(context.openFileOutput(fileName, Context.MODE_PRIVATE)))
-    notes.forEach { br.println(noteToSerializationString(it)) }
+fun saveNotesToFile(notes: List<Note>, fileName: String, activity: Activity) {
+    if (checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        != PermissionChecker.PERMISSION_GRANTED) {
+        requestPermissions(
+            activity,
+            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            1337
+        )
+    }
+    val br = PrintWriter(OutputStreamWriter(FileOutputStream(NOTE_FILE_PATH)))
+    br.print(
+        registerLocalDate(GsonBuilder()).create().toJson(notes)
+    )
     br.flush()
     br.close()
 }

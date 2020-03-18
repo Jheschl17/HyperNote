@@ -1,4 +1,7 @@
 package net.htlgrieskirchen.jheschl17.hypernote.util
 
+import android.os.Environment.getExternalStorageDirectory
+import java.io.File
+
 const val DATE_FORMAT = "d.M.yyyy"
-const val CSV_FILE_NAME = "notes.csv"
+val NOTE_FILE_PATH = getExternalStorageDirectory().absolutePath + File.separator + "note.json"

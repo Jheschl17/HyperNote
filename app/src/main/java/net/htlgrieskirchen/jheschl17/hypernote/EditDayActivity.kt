@@ -30,7 +30,7 @@ class EditDayActivity : AppCompatActivity() {
         val date = intent.getSerializableExtra("date") as LocalDate
         text_reportday.text = date.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
 
-        notes = loadNotesFromFile(CSV_FILE_NAME, this) as MutableList<Note>
+        notes = loadNotesFromFile(NOTE_FILE_PATH, this) as MutableList<Note>
         adapter = NoteAdapter(
             this,
             notes,
@@ -91,7 +91,7 @@ class EditDayActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.menu_delete -> {
                 notes.remove(adapter.getItem(listviewIndex))
-                saveNotesToFile(notes, CSV_FILE_NAME, this)
+                saveNotesToFile(notes, NOTE_FILE_PATH, this)
                 adapter.notifyDataSetChanged()
                 true
             }
@@ -101,6 +101,6 @@ class EditDayActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        saveNotesToFile(notes, CSV_FILE_NAME, this)
+        saveNotesToFile(notes, NOTE_FILE_PATH, this)
     }
 }
