@@ -20,6 +20,7 @@ class NoteDetailsActivity : AppCompatActivity() {
         text_due_date.text = note.dueDate.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
         text_done_status.text = note.completed.toString()
         text_priority.text = note.priority.name.capitalize()
+        text_category.text = note.category
         text_content.text = note.content
     }
 }

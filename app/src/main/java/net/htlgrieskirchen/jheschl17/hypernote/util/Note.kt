@@ -2,7 +2,6 @@ package net.htlgrieskirchen.jheschl17.hypernote.util
 
 import android.Manifest
 import android.app.Activity
-import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.PermissionChecker.checkSelfPermission
 import com.google.gson.GsonBuilder
@@ -17,7 +16,8 @@ data class Note (
     val content: String,
     val priority: Priority,
     val dueDate: LocalDate,
-    val completed: Boolean
+    val completed: Boolean,
+    val category: String
 )
 
 fun noteFromSerializationString(csv: String): Note {
@@ -27,14 +27,15 @@ fun noteFromSerializationString(csv: String): Note {
         content = elements[1],
         priority = Priority.valueOf(elements[2]),
         dueDate = LocalDate.parse(elements[3], DateTimeFormatter.ofPattern(DATE_FORMAT)),
-        completed = elements[4].toBoolean()
+        completed = elements[4].toBoolean(),
+        category = elements[5]
     )
 }
 
 fun noteToSerializationString(note: Note): String {
     return "${note.title};${note.content};${note.priority};" +
            "${note.dueDate.format(DateTimeFormatter.ofPattern(DATE_FORMAT))};" +
-           note.completed
+           "${note.completed};${note.category}"
 }
 
 fun loadNotesFromFile(fileName: String, activity: Activity): List<Note> {

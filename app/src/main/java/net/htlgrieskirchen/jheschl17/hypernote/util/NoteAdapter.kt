@@ -27,7 +27,7 @@ class NoteAdapter(
                     return@filter false
                 return@filter true
             }
-            .sortedWith(compareBy({it.completed}, { it.priority.intPriority }, { it.title }))[position]
+            .sortedWith(compareBy({ it.category }, {it.completed}, { it.priority.intPriority }, { it.title }))[position]
     }
 
     override fun getItemId(position: Int): Long {
@@ -53,6 +53,7 @@ class NoteAdapter(
         val note = getItem(position)
         val listItem = LayoutInflater.from(context).inflate(R.layout.listitem_note, null)
         listItem.text_notetitle.text = note.title
+        listItem.text_notecategory.text = note.category
         if (note.content.length < 30)
             listItem.text_contentpreview.text = note.content
         else

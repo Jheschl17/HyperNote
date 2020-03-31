@@ -66,7 +66,8 @@ class EditDayActivity : AppCompatActivity() {
                                     text_reportday.text.toString(),
                                     DateTimeFormatter.ofPattern(DATE_FORMAT)
                                 ),
-                                completed = false
+                                completed = false,
+                                category = editNoteDialog.txt_note_category.text.toString()
                             )
                         )
                         adapter.notifyDataSetChanged()

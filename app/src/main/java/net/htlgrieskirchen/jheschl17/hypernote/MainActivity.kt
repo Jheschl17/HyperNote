@@ -23,7 +23,5 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         navView.selectedItemId = R.id.navigation_report
-
-
     }
 }
