@@ -10,6 +10,8 @@ import kotlinx.android.synthetic.main.fragment_report.view.*
 import kotlinx.android.synthetic.main.fragment_report.view.lst_reportnotes
 import net.htlgrieskirchen.jheschl17.hypernote.NoteDetailsActivity
 import net.htlgrieskirchen.jheschl17.hypernote.R
+import net.htlgrieskirchen.jheschl17.hypernote.cloud.loadNotes
+import net.htlgrieskirchen.jheschl17.hypernote.cloud.saveNotes
 import net.htlgrieskirchen.jheschl17.hypernote.util.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -33,7 +35,13 @@ class ReportFragment : Fragment() {
             DateTimeFormatter.ofPattern(DATE_FORMAT)
         )
 
-        notes = loadNotesFromFile(NOTE_FILE_PATH, requireActivity()) as MutableList<Note>
+        val prefMngr = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+        val username = prefMngr.getString("username", null)
+        val password = prefMngr.getString("password", null)
+        if (username == null || password == null)
+            throw java.lang.Exception("username of password have value null")
+
+        notes = loadNotes(requireActivity(), username, password) as MutableList<Note>
         adapter = NoteAdapter(
             requireContext(),
             notes,
@@ -74,7 +82,12 @@ class ReportFragment : Fragment() {
                 notes[viewIndex] = notes[viewIndex].copy(completed = true)
             }
         }
-        saveNotesToFile(notes, NOTE_FILE_PATH, requireActivity())
+        val prefMngr = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val username = prefMngr.getString("username", null)
+        val password = prefMngr.getString("password", null)
+        if (username == null || password == null)
+            throw java.lang.Exception("username of password have value null")
+        saveNotes(notes, requireActivity(), username, password)
         adapter.notifyDataSetChanged()
         return true
     }

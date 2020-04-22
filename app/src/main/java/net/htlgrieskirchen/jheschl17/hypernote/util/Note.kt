@@ -38,7 +38,8 @@ fun noteToSerializationString(note: Note): String {
            "${note.completed};${note.category}"
 }
 
-fun loadNotesFromFile(fileName: String, activity: Activity): List<Note> {
+@Deprecated("use net.htlgrieskirchen.jheschl17.hypernote.cloud.SaveManager.loadNotes instead")
+fun loadNotesFromFile(activity: Activity): List<Note> { // TODO remove this
     if (checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
         != PermissionChecker.PERMISSION_GRANTED) {
         requestPermissions(
@@ -58,7 +59,8 @@ fun loadNotesFromFile(fileName: String, activity: Activity): List<Note> {
         mutableListOf()
 }
 
-fun saveNotesToFile(notes: List<Note>, fileName: String, activity: Activity) {
+@Deprecated("use net.htlgrieskirchen.jheschl17.hypernote.cloud.SaveManager.saveNotes instead")
+fun saveNotesToFile(notes: List<Note>, activity: Activity) { // TODO remove this
     if (checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
         != PermissionChecker.PERMISSION_GRANTED) {
         requestPermissions(

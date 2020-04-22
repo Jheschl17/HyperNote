@@ -15,7 +15,11 @@ import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import net.htlgrieskirchen.jheschl17.hypernote.cloud.loadNotes
+import net.htlgrieskirchen.jheschl17.hypernote.cloud.saveNotes
+import kotlin.system.exitProcess
 
 class EditDayActivity : AppCompatActivity() {
 
@@ -30,12 +34,18 @@ class EditDayActivity : AppCompatActivity() {
         val date = intent.getSerializableExtra("date") as LocalDate
         text_reportday.text = date.format(DateTimeFormatter.ofPattern(DATE_FORMAT))
 
-        notes = loadNotesFromFile(NOTE_FILE_PATH, this) as MutableList<Note>
+        val prefMngr = PreferenceManager.getDefaultSharedPreferences(this)
+        val username = prefMngr.getString("username", null)
+        val password = prefMngr.getString("password", null)
+        if (username == null || password == null)
+            throw java.lang.Exception("username of password have value null")
+
+        notes = loadNotes(this, username, password) as MutableList<Note>
         adapter = NoteAdapter(
             this,
             notes,
             Predicate { it.dueDate == date },
-            PreferenceManager.getDefaultSharedPreferences(this)
+            prefMngr
         )
         lst_reportnotes.adapter = adapter
 
@@ -53,7 +63,7 @@ class EditDayActivity : AppCompatActivity() {
             AlertDialog.Builder(this)
                 .setTitle("Neue Notiz")
                 .setView(editNoteDialog)
-                .setPositiveButton("OK", DialogInterface.OnClickListener { _, _ ->
+                .setPositiveButton("OK") { _, _ ->
                     try {
                         notes.add(
                             Note(
@@ -72,7 +82,7 @@ class EditDayActivity : AppCompatActivity() {
                         )
                         adapter.notifyDataSetChanged()
                     } catch (e: Exception) {e.printStackTrace()}
-                })
+                }
                 .setNegativeButton("Cancel", null)
                 .show()
         }
@@ -92,7 +102,14 @@ class EditDayActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.menu_delete -> {
                 notes.remove(adapter.getItem(listviewIndex))
-                saveNotesToFile(notes, NOTE_FILE_PATH, this)
+
+                val prefMngr = PreferenceManager.getDefaultSharedPreferences(this)
+                val username = prefMngr.getString("username", null)
+                val password = prefMngr.getString("password", null)
+                if (username == null || password == null)
+                    throw java.lang.Exception("username of password have value null")
+                saveNotes(notes, this, username, password)
+
                 adapter.notifyDataSetChanged()
                 true
             }
@@ -102,6 +119,11 @@ class EditDayActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        saveNotesToFile(notes, NOTE_FILE_PATH, this)
+        val prefMngr = PreferenceManager.getDefaultSharedPreferences(this)
+        val username = prefMngr.getString("username", null)
+        val password = prefMngr.getString("password", null)
+        if (username == null || password == null)
+            throw java.lang.Exception("username of password have value null")
+        saveNotes(notes, this, username, password)
     }
 }
