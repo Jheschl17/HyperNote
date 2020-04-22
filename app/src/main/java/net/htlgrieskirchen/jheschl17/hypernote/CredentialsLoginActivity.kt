@@ -1,9 +1,11 @@
 package net.htlgrieskirchen.jheschl17.hypernote
 
+import android.Manifest
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_credentials_login.*
@@ -34,5 +36,7 @@ class CredentialsLoginActivity : AppCompatActivity() {
                     .show()
             }
         }
+
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
     }
 }

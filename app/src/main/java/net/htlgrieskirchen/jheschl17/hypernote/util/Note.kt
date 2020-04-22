@@ -10,6 +10,8 @@ import java.io.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import androidx.core.content.PermissionChecker
+import net.htlgrieskirchen.jheschl17.hypernote.cloud.api.ApiGetAddressTask
+import net.htlgrieskirchen.jheschl17.hypernote.cloud.api.GetAddressIn
 
 data class Note (
     val title: String,
@@ -17,7 +19,10 @@ data class Note (
     val priority: Priority,
     val dueDate: LocalDate,
     val completed: Boolean,
-    val category: String
+    val category: String,
+    val lon: Double,
+    val lat: Double,
+    val address: String = ApiGetAddressTask().execute(GetAddressIn(lat, lon)).get().display_name
 )
 
 fun noteFromSerializationString(csv: String): Note {
@@ -28,17 +33,19 @@ fun noteFromSerializationString(csv: String): Note {
         priority = Priority.valueOf(elements[2]),
         dueDate = LocalDate.parse(elements[3], DateTimeFormatter.ofPattern(DATE_FORMAT)),
         completed = elements[4].toBoolean(),
-        category = elements[5]
+        category = elements[5],
+        lon = elements[6].toDouble(),
+        lat = elements[7].toDouble(),
+        address = elements[8]
     )
 }
 
 fun noteToSerializationString(note: Note): String {
     return "${note.title};${note.content};${note.priority};" +
            "${note.dueDate.format(DateTimeFormatter.ofPattern(DATE_FORMAT))};" +
-           "${note.completed};${note.category}"
+           "${note.completed};${note.category};${note.lon};${note.lat};${note.address}"
 }
 
-@Deprecated("use net.htlgrieskirchen.jheschl17.hypernote.cloud.SaveManager.loadNotes instead")
 fun loadNotesFromFile(activity: Activity): List<Note> { // TODO remove this
     if (checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
         != PermissionChecker.PERMISSION_GRANTED) {
@@ -59,7 +66,6 @@ fun loadNotesFromFile(activity: Activity): List<Note> { // TODO remove this
         mutableListOf()
 }
 
-@Deprecated("use net.htlgrieskirchen.jheschl17.hypernote.cloud.SaveManager.saveNotes instead")
 fun saveNotesToFile(notes: List<Note>, activity: Activity) { // TODO remove this
     if (checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
         != PermissionChecker.PERMISSION_GRANTED) {
