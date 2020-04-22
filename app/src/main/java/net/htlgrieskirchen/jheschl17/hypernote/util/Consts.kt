@@ -4,4 +4,5 @@ import android.os.Environment.getExternalStorageDirectory
 import java.io.File
 
 const val DATE_FORMAT = "d.M.yyyy"
+const val LOCATIONIQ_API_KEY = "cff3623155ab89"
 val NOTE_FILE_PATH = getExternalStorageDirectory().absolutePath + File.separator + "notes.json"

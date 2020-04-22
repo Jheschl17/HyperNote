@@ -3,6 +3,7 @@ package net.htlgrieskirchen.jheschl17.hypernote.cloud.api
 import android.os.AsyncTask
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import net.htlgrieskirchen.jheschl17.hypernote.util.LOCATIONIQ_API_KEY
 import net.htlgrieskirchen.jheschl17.hypernote.util.Note
 import net.htlgrieskirchen.jheschl17.hypernote.util.Priority
 import java.io.InputStream
@@ -160,24 +161,6 @@ data class ApiGetAllTodoListsIn(
 )
 
 
-fun editTodoList(
-    username: String,
-    password: String,
-    id: Int,
-    name: String,
-    additionalData: String
-): ApiCreateTodoListOut {
-    TODO()
-}
-
-fun deleteTodoList(
-    username: String,
-    password: String,
-    id: Int
-) {
-    TODO()
-}
-
 /**
  * returns: id of newly created todo
  */
@@ -248,7 +231,7 @@ fun noteToApiCreateTodoIn(note: Note, username: String, password: String, todoLi
         description = note.content,
         dueDate = """${note.dueDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))} 01:00:00""",
         state = note.completed.toString(),
-        additionalData = "${note.priority};${note.category}"
+        additionalData = "${note.priority};${note.category};${note.lon};${note.lat};${note.address}"
     )
 }
 
@@ -260,7 +243,7 @@ data class ApiTodo(
     val description: String,
     val dueDate: String,
     val state: String, // true = completed       false = not completed
-    val additionalData: String // PRIORITY;CATEGORY
+    val additionalData: String // PRIORITY;CATEGORY;lon;lat;address
 )
 
 fun apiTodoToNote(apiTodo: ApiTodo): Note {
@@ -270,7 +253,10 @@ fun apiTodoToNote(apiTodo: ApiTodo): Note {
         priority = Priority.valueOf(apiTodo.additionalData.split(";")[0]),
         dueDate = LocalDate.parse(apiTodo.dueDate.split(" ")[0]),
         completed = apiTodo.state.toBoolean(),
-        category = apiTodo.additionalData.split(";")[1]
+        category = apiTodo.additionalData.split(";")[1],
+        lon = apiTodo.additionalData.split(";")[2].toDouble(),
+        lat = apiTodo.additionalData.split(";")[3].toDouble(),
+        address = apiTodo.additionalData.split(";")[4]
     )
 }
 
@@ -321,27 +307,35 @@ data class ApiGetAllTodosIn(
 )
 
 
-fun editTodo(
-    username: String,
-    password: String,
-    id: Int,
-    todoListId: Int,
-    title: String,
-    description: String,
-    dueDate: String,
-    state: String,
-    additionalData: String
-): Note {
-    TODO()
+fun getAddress(
+    lat: Double,
+    lon: Double
+): GetAddressOut {
+    return GsonBuilder().create().fromJson(
+        get(
+            "https://eu1.locationiq.com/v1/reverse.php?key=${LOCATIONIQ_API_KEY}&lat=${lat}&lon=${lon}&format=json"
+        ),
+        GetAddressOut::class.java
+    )
 }
 
-fun deleteTodo(
-    username: String,
-    password: String,
-    id: Int
-) {
-    TODO()
+class ApiGetAddressTask: AsyncTask<GetAddressIn, Void, GetAddressOut>() {
+    override fun doInBackground(vararg params: GetAddressIn): GetAddressOut {
+        return getAddress(params[0].lat, params[0].lon)
+    }
 }
+
+data class GetAddressIn(
+    val lat: Double,
+    val lon: Double
+)
+
+data class GetAddressOut(
+    val lon: Double,
+    val lat: Double,
+    val display_name: String
+)
+
 
 private fun post(url: String, data: ByteArray): String {
     val connection: HttpURLConnection = URL(url).openConnection() as HttpURLConnection

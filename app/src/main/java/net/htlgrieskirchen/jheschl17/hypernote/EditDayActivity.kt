@@ -1,24 +1,31 @@
 package net.htlgrieskirchen.jheschl17.hypernote
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
-import kotlinx.android.synthetic.main.activity_edit_day.*
-import kotlinx.android.synthetic.main.edit_note_dialog.view.*
-import net.htlgrieskirchen.jheschl17.hypernote.util.*
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.function.Predicate
-import android.content.DialogInterface
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Bundle
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
-import androidx.core.content.edit
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
+import kotlinx.android.synthetic.main.activity_edit_day.*
+import kotlinx.android.synthetic.main.edit_note_dialog.view.*
 import net.htlgrieskirchen.jheschl17.hypernote.cloud.loadNotes
 import net.htlgrieskirchen.jheschl17.hypernote.cloud.saveNotes
+import net.htlgrieskirchen.jheschl17.hypernote.util.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.function.Predicate
 import kotlin.system.exitProcess
 
 class EditDayActivity : AppCompatActivity() {
@@ -58,6 +65,11 @@ class EditDayActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val location = getLocation(this)
+        if (location == null) {
+            Toast.makeText(this, "Please enable GPS", Toast.LENGTH_LONG).show()
+            this.finishAffinity()
+        }
         floatingbutton_newnote.setOnClickListener {
             val editNoteDialog = prepareEditDialog(null, "", "", applicationContext)
             AlertDialog.Builder(this)
@@ -77,7 +89,9 @@ class EditDayActivity : AppCompatActivity() {
                                     DateTimeFormatter.ofPattern(DATE_FORMAT)
                                 ),
                                 completed = false,
-                                category = editNoteDialog.txt_note_category.text.toString()
+                                category = editNoteDialog.txt_note_category.text.toString(),
+                                lon = location!!.longitude,
+                                lat = location.latitude
                             )
                         )
                         adapter.notifyDataSetChanged()
@@ -126,4 +140,20 @@ class EditDayActivity : AppCompatActivity() {
             throw java.lang.Exception("username of password have value null")
         saveNotes(notes, this, username, password)
     }
+}
+
+fun getLocation(activity: Activity): Location? {
+    val locationManager = activity.getSystemService(LocationManager::class.java)
+    if (ActivityCompat.checkSelfPermission(
+            activity,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+            activity,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        activity.requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 54121)
+    }
+
+    return locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
 }
