@@ -10,7 +10,6 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_credentials_login.*
 import net.htlgrieskirchen.jheschl17.hypernote.cloud.verifyCredentials
-import java.time.Duration
 
 class CredentialsLoginActivity : AppCompatActivity() {
 
