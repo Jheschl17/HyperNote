@@ -1,23 +1,15 @@
 package net.htlgrieskirchen.jheschl17.hypernote.cloud
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.net.ConnectivityManager
 import android.util.Log
-import androidx.core.app.ActivityCompat
-import androidx.core.content.PermissionChecker
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import net.htlgrieskirchen.jheschl17.hypernote.cloud.api.*
-import net.htlgrieskirchen.jheschl17.hypernote.util.NOTE_FILE_PATH
 import net.htlgrieskirchen.jheschl17.hypernote.util.Note
-import net.htlgrieskirchen.jheschl17.hypernote.util.registerLocalDate
-import java.io.*
-import java.lang.Exception
 
 fun loadNotes(activity: Activity, username: String, password: String): List<Note> {
-    return getTodoListId(activity)?.let { loadNotesNetwork(username, password, it) } ?: mutableListOf<Note>()
+    return getTodoListId(activity, username)?.let { loadNotesNetwork(username, password, it) } ?: mutableListOf<Note>()
 }
 
 private fun loadNotesNetwork(username: String, password: String, id: Int): List<Note> {
@@ -34,19 +26,31 @@ fun saveNotes(notes: List<Note>, activity: Activity, username: String, password:
     notes.forEach {
         ApiCreateTodoTask().execute(noteToApiCreateTodoIn(it, username, password, newListId))
     }
-    setTodoListId(activity, newListId)
+    setTodoListId(activity, newListId, username)
 }
 
 
 private const val CUR_ID_FILE_NAME: String = "cur_id.txt"
 
-private fun getTodoListId(activity: Activity): Int? { // TODO make dependent on username
-    return activity.openFileInput(CUR_ID_FILE_NAME).readString().toIntOrNull()
+private fun getTodoListId(activity: Activity, username: String): Int? {
+    val map = GsonBuilder().create()
+        .fromJson<MutableMap<String, Int>>(
+            activity.openFileInput(CUR_ID_FILE_NAME).readString(),
+            object : TypeToken<MutableMap<String, Int>>() {}.type
+        )
+    return map[username]
 }
 
-private fun setTodoListId(activity: Activity, id: Int) { // TODO make dependent on username
+private fun setTodoListId(activity: Activity, id: Int, username: String) {
+    val map = GsonBuilder().create()
+        .fromJson<MutableMap<String, Int>>(
+            activity.openFileInput(CUR_ID_FILE_NAME).readString(),
+            object : TypeToken<MutableMap<String, Int>>() {}.type
+        )
+    map[username] = id
+
     val br = activity.openFileOutput(CUR_ID_FILE_NAME, Context.MODE_PRIVATE).bufferedWriter()
-    br.write(id.toString())
+    br.write(GsonBuilder().create().toJson(map))
     br.flush()
     br.close()
 }
