@@ -7,4 +7,10 @@
         android:key="preference_checkbox_displaydone"
         android:title="Display done TODOs" />
 
+    <CheckBoxPreference
+        android:layout_width="match_parent"
+        android:defaultValue="true"
+        android:key="preference_checkbox_notifications"
+        android:title="Create notifications" />
+
 </PreferenceScreen>

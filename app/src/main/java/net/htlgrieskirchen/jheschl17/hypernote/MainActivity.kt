@@ -1,12 +1,19 @@
 package net.htlgrieskirchen.jheschl17.hypernote
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import net.htlgrieskirchen.jheschl17.hypernote.util.NOTIFICATION_CHANNEL_LOCATION
 
 /*
 username: jheschl13371234
@@ -29,7 +36,18 @@ class MainActivity : AppCompatActivity() {
 
         navView.selectedItemId = R.id.navigation_report
 
-        NotificationService(this).start()
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_LOCATION,
+            "group location",
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = "notification channel for note reminders in app HyperNote"
+        }
+
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.createNotificationChannel(channel)
+
+        startService(Intent(this, NotificationService::class.java))
     }
 
 }

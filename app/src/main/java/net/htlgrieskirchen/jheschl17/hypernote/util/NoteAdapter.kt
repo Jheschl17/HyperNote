@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.listitem_note.view.*
 import net.htlgrieskirchen.jheschl17.hypernote.R
 import java.util.function.Predicate
@@ -54,6 +53,7 @@ class NoteAdapter(
         val listItem = LayoutInflater.from(context).inflate(R.layout.listitem_note, null)
         listItem.text_notetitle.text = note.title
         listItem.text_notecategory.text = note.category
+        listItem.text_address.text = note.address
         if (note.content.length < 30)
             listItem.text_contentpreview.text = note.content
         else

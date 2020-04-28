@@ -8,8 +8,8 @@ import com.google.gson.reflect.TypeToken
 import net.htlgrieskirchen.jheschl17.hypernote.cloud.api.*
 import net.htlgrieskirchen.jheschl17.hypernote.util.Note
 
-fun loadNotes(activity: Activity, username: String, password: String): List<Note> {
-    return getTodoListId(activity, username)?.let { loadNotesNetwork(username, password, it) } ?: mutableListOf<Note>()
+fun loadNotes(context: Context, username: String, password: String): List<Note> {
+    return getTodoListId(context, username)?.let { loadNotesNetwork(username, password, it) } ?: mutableListOf<Note>()
 }
 
 private fun loadNotesNetwork(username: String, password: String, id: Int): List<Note> {
@@ -32,24 +32,24 @@ fun saveNotes(notes: List<Note>, activity: Activity, username: String, password:
 
 private const val CUR_ID_FILE_NAME: String = "cur_id.txt"
 
-private fun getTodoListId(activity: Activity, username: String): Int? {
+private fun getTodoListId(context: Context, username: String): Int? {
     val map = GsonBuilder().create()
         .fromJson<MutableMap<String, Int>>(
-            activity.openFileInput(CUR_ID_FILE_NAME).readString(),
+            context.openFileInput(CUR_ID_FILE_NAME).readString(),
             object : TypeToken<MutableMap<String, Int>>() {}.type
         )
     return map[username]
 }
 
-private fun setTodoListId(activity: Activity, id: Int, username: String) {
+private fun setTodoListId(context: Context, id: Int, username: String) {
     val map = GsonBuilder().create()
         .fromJson<MutableMap<String, Int>>(
-            activity.openFileInput(CUR_ID_FILE_NAME).readString(),
+            context.openFileInput(CUR_ID_FILE_NAME).readString(),
             object : TypeToken<MutableMap<String, Int>>() {}.type
         )
     map[username] = id
 
-    val br = activity.openFileOutput(CUR_ID_FILE_NAME, Context.MODE_PRIVATE).bufferedWriter()
+    val br = context.openFileOutput(CUR_ID_FILE_NAME, Context.MODE_PRIVATE).bufferedWriter()
     br.write(GsonBuilder().create().toJson(map))
     br.flush()
     br.close()
