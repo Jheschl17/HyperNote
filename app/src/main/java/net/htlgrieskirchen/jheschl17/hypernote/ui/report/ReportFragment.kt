@@ -2,6 +2,7 @@ package net.htlgrieskirchen.jheschl17.hypernote.ui.report
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import androidx.fragment.app.Fragment
@@ -16,24 +17,28 @@ import net.htlgrieskirchen.jheschl17.hypernote.util.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.function.Predicate
+
+private lateinit var instance: ReportFragment
 
 class ReportFragment : Fragment() {
 
     private lateinit var view1: View
-    private lateinit var notes: MutableList<Note>
-    private lateinit var adapter: NoteAdapter
+    lateinit var notes: MutableList<Note>
+    lateinit var adapter: NoteAdapter
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
+        instance = this
+
         view1 = inflater.inflate(R.layout.fragment_report, container, false)
 
         view1.text_reportday.text = LocalDateTime.now().format(
-            DateTimeFormatter.ofPattern(DATE_FORMAT)
-        )
+            DateTimeFormatter.ofPattern(DATE_FORMAT))
 
         val prefMngr = PreferenceManager.getDefaultSharedPreferences(requireActivity())
         val username = prefMngr.getString("username", null)
@@ -41,7 +46,8 @@ class ReportFragment : Fragment() {
         if (username == null || password == null)
             throw java.lang.Exception("username of password have value null")
 
-        notes = loadNotes(requireActivity(), username, password) as MutableList<Note>
+        notes = Collections.synchronizedList(
+            loadNotes(requireActivity(), username, password) as MutableList<Note>)
         adapter = NoteAdapter(
             requireContext(),
             notes,
@@ -91,4 +97,18 @@ class ReportFragment : Fragment() {
         adapter.notifyDataSetChanged()
         return true
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val prefMngr = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val username = prefMngr.getString("username", null)
+        val password = prefMngr.getString("password", null)
+        if (username == null || password == null)
+            throw java.lang.Exception("username of password have value null")
+        saveNotes(notes, requireActivity(), username, password)
+    }
+}
+
+fun getInstance(): ReportFragment {
+    return instance
 }

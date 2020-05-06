@@ -4,6 +4,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
@@ -46,6 +48,8 @@ class MainActivity : AppCompatActivity() {
 
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(channel)
+
+        this.registerReceiver(SMSReceiver(), IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
 
         startService(Intent(this, NotificationService::class.java))
     }

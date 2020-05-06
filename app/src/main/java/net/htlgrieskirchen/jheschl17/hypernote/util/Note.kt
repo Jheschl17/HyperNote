@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter
 import androidx.core.content.PermissionChecker
 import net.htlgrieskirchen.jheschl17.hypernote.cloud.api.ApiGetAddressTask
 import net.htlgrieskirchen.jheschl17.hypernote.cloud.api.GetAddressIn
+import net.htlgrieskirchen.jheschl17.hypernote.getLocation
 
 data class Note (
     val title: String,
@@ -37,6 +38,25 @@ fun noteFromSerializationString(csv: String): Note {
         lon = elements[6].toDouble(),
         lat = elements[7].toDouble(),
         address = elements[8]
+    )
+}
+
+/**
+ * Format:
+ * TODO:title;content;priority(REGULAR or HIGH);dueDate(d.M.yyyy);completed(true of false);category
+ */
+fun noteFromSmsString(sms: String, activity: Activity): Note {
+    val location = getLocation(activity)!!
+    val elements = sms.split(";")
+    return Note(
+        title = elements[0],
+        content = elements[1],
+        priority = Priority.valueOf(elements[2]),
+        dueDate = LocalDate.parse(elements[3], DateTimeFormatter.ofPattern(DATE_FORMAT)),
+        completed = elements[4].toBoolean(),
+        category = elements[5],
+        lon = location.longitude,
+        lat = location.latitude
     )
 }
 

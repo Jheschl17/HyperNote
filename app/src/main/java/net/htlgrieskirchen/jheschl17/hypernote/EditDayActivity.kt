@@ -23,6 +23,7 @@ import net.htlgrieskirchen.jheschl17.hypernote.cloud.saveNotes
 import net.htlgrieskirchen.jheschl17.hypernote.util.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.function.Predicate
 
 
@@ -45,7 +46,9 @@ class EditDayActivity : AppCompatActivity() {
         if (username == null || password == null)
             throw java.lang.Exception("username of password have value null")
 
-        notes = loadNotes(this, username, password) as MutableList<Note>
+        notes = Collections.synchronizedList(
+            loadNotes(this, username, password) as MutableList<Note>
+        )
         adapter = NoteAdapter(
             this,
             notes,
